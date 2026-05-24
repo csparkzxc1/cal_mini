@@ -1,319 +1,225 @@
-# 56K Design Dictionary
+# 56K — Design System
 
-PC통신 (Korean BBS) visual, copy, and sound reference for the 56K calendar app.
+PC통신 미학을 캘린더로 옮기는 디테일 사전. Cc가 코드 짤 때 참조.
 
----
+-----
 
-## Color Palette
+## 1. 색상 토큰
 
-CRT monitor aesthetic. No pure whites, no modern gradients.
+### Core/DesignSystem/Colors.swift 에 정의
 
-| Token | Hex | Usage |
+|토큰|Hex|용도|
 |---|---|---|
-| `background` | `#0D1117` | Deep navy/black. Main screen background, CRT off-tone. |
-| `primaryText` | `#00CCCC` | Cyan. Default body text, labels, most UI copy. |
-| `secondaryText` | `#33CC33` | Green. Terminal-style secondary info, timestamps, metadata. |
-| `highlight` | `#CCCC00` | Yellow. Selected day, active item, focused state. |
-| `warning` | `#CC00CC` | Magenta. Alerts, destructive action labels, important badges. |
-| `systemText` | `#CCCCCC` | Dim CRT white. System messages, disabled text, subtle labels. |
-| `cursor` | `#00FFFF` | Bright cyan. Cursor blink, active indicator, today marker. |
-| `border` | `#008888` | Dim cyan. ASCII box borders, dividers, separators. |
-| `error` | `#CC3333` | Red. Validation errors, connection failure text. |
+|`kalBlack`|`#000000`|배경 (메인)|
+|`kalDarkBlue`|`#000080`|보조 배경 (헤더, 카드 베이스)|
+|`kalCyan`|`#00CCCC`|본문 텍스트, 기본 정보|
+|`kalCyanBright`|`#00FFFF`|강조 텍스트, 오늘 날짜|
+|`kalMagenta`|`#FF00FF`|액션 (버튼, 링크)|
+|`kalYellow`|`#FFFF33`|알림, 중요|
+|`kalRed`|`#FF3333`|위험, 삭제, 휴일|
+|`kalGreen`|`#00FF00`|성공, 완료|
+|`kalDim`|`#006666`|비활성, 다른 달 날짜|
 
-### Usage Notes
+**원칙:** 9개 토큰으로 끝. 추가 금지. 회색조 필요하면 `kalDim` 또는 `kalCyan.opacity()` 사용.
 
-- Background should feel like a CRT that is on but showing a dark screen, not a modern dark mode.
-- Text colors should look slightly phosphor-burned, not LED-crisp.
-- Never use pure black (`#000000`) for backgrounds or pure white (`#FFFFFF`) for text.
+-----
 
----
+## 2. 폰트
 
-## Typography
+### 갈무리 (Galmuri)
 
-### Font Families
+- 라이선스: OFL (Open Font License), 상업 사용 가능
+- 출처: https://github.com/quiple/galmuri
+- 사용 폰트:
+  - **Galmuri11** (11pt 픽셀, 일반 텍스트)
+  - **Galmuri14** (14pt 픽셀, 헤더)
+  - **Galmuri7** (7pt 픽셀, 위젯 작은 글자)
 
-| Context | Font | Fallback |
-|---|---|---|
-| Headers, boot sequence, ASCII boxes, widget | **Galmuri11** (갈무리) | `Menlo`, monospace system font |
-| Body text, event details, daily schedule | SF Pro (system font) | default system |
+### 적용 규칙
 
-Galmuri is a Korean pixel font that recreates the bitmap feel of 90s PC통신 terminals. Use it for anything that should feel "system-level" or decorative. Use the system font for anything the user needs to read at length.
-
-### Size Tokens
-
-| Token | Points | Usage |
-|---|---|---|
-| `caption` | 11 | Timestamps, metadata, status bar |
-| `body` | 14 | Event titles, list items, general copy |
-| `header` | 17 | Section headers, day view title |
-| `title` | 22 | Month/year display, screen titles |
-| `boot` | 13 | Boot sequence monospaced lines |
-
-### Rules
-
-- Boot sequence and ASCII art always use Galmuri at `boot` size, monospaced.
-- Calendar day numbers use Galmuri at `body` size.
-- Event descriptions and multi-line text use system font at `body` size.
-- Widget uses Galmuri exclusively.
-
----
-
-## ASCII Art Components
-
-### Box Drawing
-
-Double-line boxes for primary panels and modals:
-
-```
-╔══════════════════════════╗
-║  56K CALENDAR v1.0       ║
-╠══════════════════════════╣
-║                          ║
-╚══════════════════════════╝
-```
-
-Single-line boxes for secondary panels, list containers, day cells:
-
-```
-┌──────────────────────────┐
-│  2026년 05월 게시판       │
-├──────────────────────────┤
-│                          │
-└──────────────────────────┘
-```
-
-### Characters Reference
-
-| Type | Characters |
+|위치|폰트|
 |---|---|
-| Double box | `╔ ═ ╗ ║ ╚ ╝ ╠ ╣ ╬` |
-| Single box | `┌ ─ ┐ │ └ ┘ ├ ┤` |
-| Heavy divider | `━━━━━━━━━━━━━━━━` |
-| Double divider | `════════════════` |
-| Light divider | `────────────────` |
-| Nav arrows | `◀ ▶ ▲ ▼` |
-| Decorative | `★ ● ◆ ■` |
-| Progress bar | `[■■■■□□□□□□]` |
-| Status online | `●` |
-| Status offline | `○` |
+|부팅 시퀀스 전체|Galmuri11/14|
+|월 뷰 헤더 ("2026 / 05")|Galmuri14|
+|요일 이름 (일월화수목금토)|Galmuri11|
+|날짜 숫자|Galmuri11|
+|ASCII 박스 보더|Galmuri11|
+|**이벤트 제목 (본문)**|**시스템 폰트 (가독성 우선)**|
+|**이벤트 시간/메모**|**시스템 폰트**|
+|위젯|Galmuri7/11|
 
-### Calendar Day Cell
+### Core/DesignSystem/Fonts.swift
 
-```
-┌────┐
-│ 23 │
-│ ●● │  <- event dots
-└────┘
-```
-
-Selected state uses `highlight` color for the border or background:
-
-```
-╔════╗
-║ 23 ║
-║ ●● ║
-╚════╝
+```swift
+extension Font {
+    static let pixel11 = Font.custom("Galmuri11", size: 11)
+    static let pixel14 = Font.custom("Galmuri14", size: 14)
+    static let pixel7  = Font.custom("Galmuri7", size: 7)
+}
 ```
 
-### Navigation Bar
+-----
+
+## 3. ASCII 컴포넌트 라이브러리
+
+### Core/DesignSystem/ASCII.swift
+
+```swift
+enum ASCII {
+    static let boxTL = "╔"
+    static let boxTR = "╗"
+    static let boxBL = "╚"
+    static let boxBR = "╝"
+    static let boxH  = "═"
+    static let boxV  = "║"
+    static let boxML = "╠"
+    static let boxMR = "╣"
+    static let boxMT = "╦"
+    static let boxMB = "╩"
+    static let boxX  = "╬"
+    
+    static let lineTL = "┌"
+    static let lineTR = "┐"
+    static let lineBL = "└"
+    static let lineBR = "┘"
+    static let lineH  = "─"
+    static let lineV  = "│"
+    
+    static let arrowL = "◀"
+    static let arrowR = "▶"
+    static let bullet = "●"
+    static let star   = "★"
+    static let diamond = "◆"
+    
+    static func hLine(_ width: Int) -> String {
+        String(repeating: boxH, count: width)
+    }
+}
+```
+
+-----
+
+## 4. 카피 사전
+
+### Core/DesignSystem/Copy.swift
+
+원칙:
+
+- 시스템 메시지: 격식 ("정상 등록되었습니다")
+- 사용자 액션: 통신체 ("새 글쓰기", "님하")
+- ㅎㅎ/ㅋㅋ 남발 금지. 향수가 향수로 남도록.
+
+(Full copy dictionary with System, Action, Confirm, Empty, Boot, Field, Settings sections as defined in Copy.swift)
+
+-----
+
+## 5. 뷰별 레이아웃 사양
+
+### 5.1 부팅 시퀀스 (첫 실행 또는 사용자 ON)
+
+타이밍:
+- 0.0s: 화면 검정
+- 0.3s: "KAL.COM v1.0" 페이드인
+- 0.8s: "COM1: 56000 baud" 페이드인
+- 1.2s: "ATDT…" 텍스트, 모뎀 다이얼링 사운드 시작
+- 2.0s: "CONNECT 33600/V42BIS" 표시
+- 2.4s: "KORNET 접속 중…" 텍스트
+- 3.0s: "[연결 성공]" 마젠타로 표시
+- 3.4s: ASCII 박스 안에 로고 등장
+- 4.0s: "님하 어서오삼" + 메인 화면 전환
+
+총 4초. 두 번째 실행부터는 스킵 또는 1초 단축.
+
+### 5.2 월 뷰
 
 ```
 ╔══════════════════════════════╗
-║  ◀  2026년 05월 게시판  ▶   ║
+║   2026 / 05   ◀     ▶     ⚙ ║
+╠══════════════════════════════╣
+║  일  월  화  수  목  금  토  ║
+║                              ║
+║   .   .   .   .   1   2   3  ║
+║   4   5   6   7   8   9  10  ║
+║  11  12  13  14  15  16  17  ║
+║  18  19  20  21  22  23 ▶24◀ ║
+║  25  26  27  28  29  30  31  ║
 ╚══════════════════════════════╝
 ```
 
-### Modal Overlay
+### 5.3 일 상세 뷰
 
 ```
-╔══════════════════════════╗
-║      새 글 쓰기          ║
-╠══════════════════════════╣
-║                          ║
-║  제목: _                 ║
-║  시간: _                 ║
-║                          ║
-║  [저장 F10]  [취소 ESC]  ║
-╚══════════════════════════╝
+╔══ 2026-05-24 (일) ════════════╗
+║ [0001] [업무] 14:00            ║
+║         주간회의               ║
+║ [0002] [개인] 18:00            ║
+║         저녁약속               ║
+║ [F] 새 글쓰기                  ║
+╚════════════════════════════════╝
 ```
 
-### Empty State
+### 5.4 이벤트 생성/수정 뷰
 
 ```
-┌──────────────────────────┐
-│                          │
-│  등록된 일정이 없습니다   │
-│                          │
-└──────────────────────────┘
+╔══ 새 글쓰기 ══════════════════╗
+║ 제목 >> [_______________]      ║
+║ 날짜 >> 2026-05-24             ║
+║ 시간 >> 14:00 ~ 15:00          ║
+║ 장소 >> [_______________]      ║
+║ 내용 >> [_______________]      ║
+║         [S] 등록  [ESC] 취소   ║
+╚════════════════════════════════╝
 ```
 
----
+### 5.5 위젯 (Small)
 
-## Copy Dictionary
+```
+┌─ 2026/05 ─────┐
+│ 24 (일)       │
+│ ─────────     │
+│ 14:00 회의    │
+│ 18:00 약속    │
+└───────────────┘
+```
 
-All user-facing text uses 90s Korean BBS (PC통신) tone. Casual, slightly playful, uses period-appropriate slang like "님하".
+-----
 
-### Core UI
+## 6. 사운드 설계
 
-| Key | Korean | Context |
+|파일명|용도|길이|
 |---|---|---|
-| `greeting` | 접속을 환영합니다 | General welcome |
-| `monthTitle` | XXXX년 XX월 게시판 | Month view header (replace XXXX/XX with year/month) |
-| `noEvents` | 등록된 일정이 없습니다 | Empty day/month state |
-| `addEvent` | 새 글 쓰기 | Create event button |
-| `editEvent` | 글 수정 | Edit event action |
-| `deleteEvent` | 글 삭제 | Delete event action |
-| `save` | 저장 [F10] | Save/confirm button |
-| `cancel` | 취소 [ESC] | Cancel/dismiss button |
-| `settings` | 환경 설정 | Settings screen title |
-| `today` | 오늘 | Today button |
-| `back` | 이전 | Back navigation |
+|`modem_handshake.m4a`|부팅 시퀀스|~3s|
+|`beep_short.m4a`|일반 시스템 비프|0.2s|
+|`beep_error.m4a`|오류|0.4s|
+|`key_press.m4a`|키보드 타이핑 (옵션)|0.05s|
 
-### Boot Sequence
+기본값: **사운드 OFF**. 첫 실행 부팅 시퀀스에서만 자동 ON. 시스템 음량 따름.
 
-| Key | Korean |
-|---|---|
-| `bootGreeting` | 56K 캘린더 v1.0 접속 중... |
-| `bootComplete` | 접속 완료! 즐거운 하루 되세요, 님하~ |
+-----
 
-### System Messages
+## 7. 점멸/애니메이션
 
-| Key | Korean |
-|---|---|
-| `loading` | 로딩중... |
-| `error` | 에러 발생! 다시 시도해 주세요 |
-| `permissionDenied` | 권한이 필요합니다, 님하 |
+- 오늘 날짜 ▶24◀ 화살표만 점멸 (0.6s 주기)
+- 부팅 커서 █ 점멸
+- 부팅 텍스트: 타이핑 효과 (글자당 30~50ms)
+- 화면 전환: 페이드. 슬라이드 금지.
 
-### IAP (In-App Purchase)
+-----
 
-| Key | Korean |
-|---|---|
-| `iapTitle` | 프리미엄 서비스 |
-| `iapDescription` | 모든 기능 잠금 해제 |
-| `purchaseButton` | 구매하기 [₩4,900] |
-| `purchased` | 구매 완료 ★ |
-| `restore` | 구매 복원 |
+## 8. 다크모드 / 라이트모드
 
-### Settings
+라이트모드 지원 안 함. 강제 다크. `UIUserInterfaceStyle: Dark`
 
-| Key | Korean |
-|---|---|
-| `soundOn` | 사운드 ON |
-| `soundOff` | 사운드 OFF |
-| `bootSkip` | 부팅 건너뛰기 |
+-----
 
-### Calendar / Weekdays
+## 9. 한국어 처리
 
-| Key | Korean |
-|---|---|
-| `weekdays` | 일 / 월 / 화 / 수 / 목 / 금 / 토 |
+- 갈무리: 한글 완전 지원
+- 이모지: 시스템 폰트 폴백
+- 사용자 이벤트 내용: 시스템 폰트 (가독성)
 
-### Permissions
+-----
 
-| Key | Korean |
-|---|---|
-| `calendarPermissionAsk` | 일정 동기화를 위해 캘린더 접근이 필요함다. 님하 허용 부탁드림. |
-| `permissionDeniedFallback` | 캘린더 접근 권한이 없습니다.\n설정에서 허용해 주세요, 님하. |
-| `goToSettings` | 설정으로 이동 |
+## 10. v2 이후 (지금은 무시)
 
----
-
-## Sound Design
-
-All sounds should feel lo-fi and period-appropriate. Think 8-bit, PCM, early WAV files.
-
-| Sound | Trigger | Duration | Description |
-|---|---|---|---|
-| Modem handshake | Boot sequence | ~3s | Classic 56K modem connection sound (baud negotiation screech). Plays during boot animation. |
-| Beep | Navigation, button press | ~100ms | Short CRT terminal beep. Single frequency, square wave feel. |
-| Key click | Typing in event creation | ~50ms | Mechanical keyboard click. Subtle, not aggressive. |
-| Error buzzer | Validation error | ~300ms | Low-pitched buzz. Two short pulses. |
-| Success chime | Event saved | ~200ms | Rising two-tone chime. Feels like "task complete". |
-
-### Implementation Notes
-
-- All sounds respect the `soundOn`/`soundOff` user preference.
-- Use short audio files (CAF or WAV), not system sounds.
-- Modem sound should be a compressed version of a real 56K handshake recording, trimmed to ~3 seconds.
-- Haptic feedback can accompany beep and click on devices that support it.
-
----
-
-## Boot Sequence
-
-Plays on first launch only (or until user enables "부팅 건너뛰기"). Skippable by tap.
-
-### Flow
-
-1. **Black screen** -- 0.5s. Screen is `background` color. A single cursor block (`█`) blinks in the top-left corner using `cursor` color.
-
-2. **ASCII title** -- appears character by character (typewriter effect, ~30ms per char):
-   ```
-   ╔═══════════════════════════╗
-   ║   56K CALENDAR v1.0       ║
-   ╚═══════════════════════════╝
-   ```
-
-3. **Modem sound** -- starts playing as the title finishes rendering.
-
-4. **System check lines** -- appear one by one, each with a ~400ms delay:
-   ```
-   메모리 검사 중... OK
-   캘린더 데이터 로딩... OK
-   모뎀 연결 중... 56000 bps
-   ```
-   Each line prints left-to-right. "OK" and "56000 bps" appear after a brief pause (~200ms) in `secondaryText` (green).
-
-5. **Connection complete** -- final line in `highlight` (yellow):
-   ```
-   접속 완료!
-   ```
-
-6. **Fade to calendar** -- 0.3s crossfade to MonthView.
-
-### Timing
-
-Total boot duration: approximately 4-5 seconds (including modem sound). If the user taps the screen at any point, skip immediately to MonthView.
-
----
-
-## UI Component Patterns
-
-### List Items
-
-Default state -- prefixed with `>` or `●`:
-```
-● 팀 미팅 14:00
-● 점심 약속 12:30
-> 코드 리뷰 16:00
-```
-
-Selected state -- `▶` prefix, text color changes to `highlight`:
-```
-▶ 팀 미팅 14:00
-```
-
-### Buttons
-
-Always wrapped in square brackets:
-```
-[저장 F10]  [취소 ESC]  [삭제]
-```
-
-Active/pressed state inverts colors (text becomes `background`, background becomes `primaryText`).
-
-### Progress / Loading
-
-```
-모뎀 연결 중 [■■■■■□□□□□] 50%
-```
-
-### Status Bar (Bottom)
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 56K CAL v1.0  │  2026.05.23  │  ●
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-`●` is green when calendar access is granted, red when denied.
+외계인 테마, 생존 테마, Watch, Live Activity, Mac Catalyst, 추가 폰트. v1 = PC통신 단일 테마. 변주 금지.
