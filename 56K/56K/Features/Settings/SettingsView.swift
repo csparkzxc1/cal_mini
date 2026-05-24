@@ -15,7 +15,7 @@ struct SettingsView: View {
 
                     toggleRow(
                         label: Copy.Settings.sound,
-                        sublabel: soundEnabled ? Copy.Settings.soundOn : Copy.Settings.soundOff,
+                        sublabel: soundEnabled ? "ON" : "OFF",
                         isOn: $soundEnabled
                     )
                     .onChange(of: soundEnabled) { _, newValue in
@@ -24,7 +24,7 @@ struct SettingsView: View {
 
                     toggleRow(
                         label: Copy.Settings.bootAnimation,
-                        sublabel: skipBoot ? Copy.Settings.bootSkip : "",
+                        sublabel: "",
                         isOn: $skipBoot
                     )
                     .onChange(of: skipBoot) { _, newValue in
@@ -32,7 +32,7 @@ struct SettingsView: View {
                     }
 
                     divider
-                    sectionHeader(Copy.Settings.premium)
+                    sectionHeader(Copy.Settings.purchase)
                     iapRow
 
                     divider
@@ -42,41 +42,41 @@ struct SettingsView: View {
                 .padding(.horizontal, 16)
             }
         }
-        .background(Color.kalBackground)
+        .background(Color.kalBlack)
         .navigationBarHidden(true)
     }
 
     private var settingsHeader: some View {
         VStack(spacing: 0) {
-            Text(ASCII.doubleDivider)
-                .font(KalFont.pixel(10))
-                .foregroundStyle(Color.kalBorder)
+            Text(ASCII.hLine(30))
+                .font(.pixel11)
+                .foregroundStyle(Color.kalDim)
             HStack {
                 Button(action: { dismiss() }) {
-                    Text("[\(Copy.Common.back)]")
-                        .font(KalFont.pixel(12))
-                        .foregroundStyle(Color.kalCyan)
+                    Text(Copy.Action.back)
+                        .font(.pixel11)
+                        .foregroundStyle(Color.kalMagenta)
                 }
                 Spacer()
                 Text(Copy.Settings.title)
-                    .font(KalFont.headerTitle)
-                    .foregroundStyle(Color.kalCyan)
+                    .font(.pixel14)
+                    .foregroundStyle(Color.kalCyanBright)
                 Spacer()
                 Color.clear.frame(width: 50)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            Text(ASCII.doubleDivider)
-                .font(KalFont.pixel(10))
-                .foregroundStyle(Color.kalBorder)
+            Text(ASCII.hLine(30))
+                .font(.pixel11)
+                .foregroundStyle(Color.kalDim)
         }
     }
 
     private func sectionHeader(_ title: String) -> some View {
         HStack {
-            Text("\(ASCII.selectedItem) \(title)")
-                .font(KalFont.pixel(14))
-                .foregroundStyle(Color.kalCyan)
+            Text("\(ASCII.cursor) \(title)")
+                .font(.pixel14)
+                .foregroundStyle(Color.kalCyanBright)
             Spacer()
         }
         .padding(.vertical, 12)
@@ -86,18 +86,18 @@ struct SettingsView: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(label)
-                    .font(KalFont.bodyRegular)
-                    .foregroundStyle(Color.kalWhite)
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.kalCyan)
                 if !sublabel.isEmpty {
                     Text(sublabel)
-                        .font(KalFont.caption)
+                        .font(.pixel7)
                         .foregroundStyle(Color.kalGreen)
                 }
             }
             Spacer()
             Toggle("", isOn: isOn)
                 .labelsHidden()
-                .tint(Color.kalCyan)
+                .tint(Color.kalCyanBright)
         }
         .padding(.vertical, 8)
     }
@@ -109,21 +109,21 @@ struct SettingsView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(Copy.IAP.title)
-                        .font(KalFont.bodyRegular)
-                        .foregroundStyle(Color.kalWhite)
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.kalCyan)
                     Text(Copy.IAP.description)
-                        .font(KalFont.caption)
+                        .font(.pixel7)
                         .foregroundStyle(Color.kalGreen)
                 }
                 Spacer()
                 if IAPManager.shared.isPurchased {
                     Text(Copy.IAP.purchased)
-                        .font(KalFont.pixel(12))
+                        .font(.pixel11)
                         .foregroundStyle(Color.kalYellow)
                 } else {
                     Text(Copy.IAP.purchase)
-                        .font(KalFont.pixel(12))
-                        .foregroundStyle(Color.kalCyan)
+                        .font(.pixel11)
+                        .foregroundStyle(Color.kalMagenta)
                 }
             }
         }
@@ -133,20 +133,20 @@ struct SettingsView: View {
     private func infoRow(label: String, value: String) -> some View {
         HStack {
             Text(label)
-                .font(KalFont.bodyRegular)
-                .foregroundStyle(Color.kalWhite)
+                .font(.system(size: 14))
+                .foregroundStyle(Color.kalCyan)
             Spacer()
             Text(value)
-                .font(KalFont.pixel(12))
+                .font(.pixel11)
                 .foregroundStyle(Color.kalGreen)
         }
         .padding(.vertical, 8)
     }
 
     private var divider: some View {
-        Text(ASCII.thinDivider)
-            .font(KalFont.pixel(8))
-            .foregroundStyle(Color.kalBorder)
+        Text(String(repeating: ASCII.lineH, count: 30))
+            .font(.pixel7)
+            .foregroundStyle(Color.kalDim)
             .padding(.vertical, 4)
     }
 }

@@ -6,6 +6,7 @@ struct KalWidgetEntry: TimelineEntry {
     let dayNumber: Int
     let weekday: String
     let monthYear: String
+    let events: [(time: String, title: String)]
 }
 
 struct KalWidgetProvider: TimelineProvider {
@@ -39,49 +40,103 @@ struct KalWidgetProvider: TimelineProvider {
             date: date,
             dayNumber: day,
             weekday: weekdays[weekdayIndex],
-            monthYear: "\(year).\(month)"
+            monthYear: String(format: "%d/%02d", year, month),
+            events: []
         )
     }
+}
+
+// MARK: - Widget Colors (hardcoded for widget target)
+private enum WidgetColors {
+    static let background = Color(red: 0, green: 0, blue: 0)
+    static let cyan = Color(red: 0, green: 0.8, blue: 0.8)
+    static let bright = Color(red: 0, green: 1, blue: 1)
+    static let red = Color(red: 1, green: 0.2, blue: 0.2)
+    static let dim = Color(red: 0, green: 0.4, blue: 0.4)
 }
 
 struct KalWidgetEntryView: View {
     let entry: KalWidgetEntry
 
     var body: some View {
-        VStack(spacing: 4) {
-            Text("╔══56K══╗")
-                .font(.custom("Galmuri11", size: 10))
-                .foregroundStyle(Color(red: 0, green: 0.53, blue: 0.53))
+        VStack(alignment: .leading, spacing: 2) {
+            // Top border with month/year
+            Text("┌─ \(entry.monthYear) ─────┐")
+                .font(.custom("Galmuri7", size: 9))
+                .foregroundStyle(WidgetColors.dim)
 
-            Text(entry.monthYear)
-                .font(.custom("Galmuri11", size: 11))
-                .foregroundStyle(Color(red: 0, green: 0.8, blue: 0.8))
+            // Day number and weekday
+            HStack(spacing: 0) {
+                Text("│ ")
+                    .font(.custom("Galmuri7", size: 9))
+                    .foregroundStyle(WidgetColors.dim)
+                Text("\(entry.dayNumber) (\(entry.weekday))")
+                    .font(.custom("Galmuri11", size: 14))
+                    .foregroundStyle(dayColor)
+                Spacer()
+                Text("│")
+                    .font(.custom("Galmuri7", size: 9))
+                    .foregroundStyle(WidgetColors.dim)
+            }
 
-            Text("\(entry.dayNumber)")
-                .font(.custom("Galmuri11", size: 32))
-                .foregroundStyle(Color(red: 0.8, green: 0.8, blue: 0.8))
+            // Divider
+            Text("│ ───────── \u{2003}  │")
+                .font(.custom("Galmuri7", size: 9))
+                .foregroundStyle(WidgetColors.dim)
 
-            Text(entry.weekday)
-                .font(.custom("Galmuri11", size: 14))
-                .foregroundStyle(dayColor)
+            // Events (up to 2)
+            if entry.events.isEmpty {
+                eventRow(time: "", title: "일정 없음")
+                eventRow(time: "", title: "")
+            } else {
+                ForEach(0..<min(entry.events.count, 2), id: \.self) { i in
+                    eventRow(time: entry.events[i].time, title: entry.events[i].title)
+                }
+                if entry.events.count < 2 {
+                    eventRow(time: "", title: "")
+                }
+            }
 
-            Text("╚════════╝")
-                .font(.custom("Galmuri11", size: 10))
-                .foregroundStyle(Color(red: 0, green: 0.53, blue: 0.53))
+            // Bottom border
+            Text("└───────────────┘")
+                .font(.custom("Galmuri7", size: 9))
+                .foregroundStyle(WidgetColors.dim)
         }
         .containerBackground(for: .widget) {
-            Color(red: 0.05, green: 0.07, blue: 0.09)
+            WidgetColors.background
+        }
+    }
+
+    private func eventRow(time: String, title: String) -> some View {
+        HStack(spacing: 0) {
+            Text("│ ")
+                .font(.custom("Galmuri7", size: 9))
+                .foregroundStyle(WidgetColors.dim)
+            if !time.isEmpty {
+                Text("\(time) \(title)")
+                    .font(.custom("Galmuri11", size: 11))
+                    .foregroundStyle(WidgetColors.cyan)
+                    .lineLimit(1)
+            } else if !title.isEmpty {
+                Text(title)
+                    .font(.custom("Galmuri11", size: 11))
+                    .foregroundStyle(WidgetColors.cyan)
+                    .lineLimit(1)
+            }
+            Spacer()
+            Text("│")
+                .font(.custom("Galmuri7", size: 9))
+                .foregroundStyle(WidgetColors.dim)
         }
     }
 
     private var dayColor: Color {
         let calendar = Calendar.current
         let weekday = calendar.component(.weekday, from: entry.date)
-        switch weekday {
-        case 1: return Color(red: 0.9, green: 0.3, blue: 0.3)
-        case 7: return Color(red: 0.3, green: 0.5, blue: 0.9)
-        default: return Color(red: 0, green: 0.8, blue: 0.2)
-        }
+        let isToday = calendar.isDateInToday(entry.date)
+        if weekday == 1 { return WidgetColors.red }
+        if isToday { return WidgetColors.bright }
+        return WidgetColors.cyan
     }
 }
 

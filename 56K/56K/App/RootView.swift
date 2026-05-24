@@ -45,7 +45,7 @@ struct RootView: View {
 
             settingsBar
         }
-        .background(Color.kalBackground)
+        .background(Color.kalBlack)
         .navigationDestination(isPresented: Binding(
             get: { store.isShowingDayView },
             set: { store.isShowingDayView = $0 }
@@ -62,21 +62,21 @@ struct RootView: View {
 
     private var settingsBar: some View {
         VStack(spacing: 0) {
-            Text(ASCII.thinDivider)
-                .font(KalFont.pixel(10))
-                .foregroundStyle(Color.kalBorder)
+            Text(String(repeating: ASCII.lineH, count: 30))
+                .font(.pixel11)
+                .foregroundStyle(Color.kalDim)
 
             HStack {
-                Text("\(ASCII.online) 접속중")
-                    .font(KalFont.pixel(11))
+                Text("\(ASCII.bullet) \(Copy.System.connecting)")
+                    .font(.pixel11)
                     .foregroundStyle(Color.kalGreen)
 
                 Spacer()
 
                 Button(action: { showSettings = true }) {
                     Text("[\(Copy.Settings.title)]")
-                        .font(KalFont.pixel(12))
-                        .foregroundStyle(Color.kalCyan)
+                        .font(.pixel11)
+                        .foregroundStyle(Color.kalMagenta)
                 }
             }
             .padding(.horizontal, 16)
