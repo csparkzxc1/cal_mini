@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>56K 캘린더 — 목업</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/galmuri.css');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #111;
+    color: #00CCCC;
+    font-family: 'Galmuri11', 'Courier New', monospace;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    width: 100%;
+    text-align: center;
+    font-family: 'Galmuri14', 'Galmuri11', monospace;
+    font-size: 24px;
+    color: #00FFFF;
+    margin-bottom: 10px;
+  }
+  .subtitle {
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: #006666;
+    margin-bottom: 20px;
+  }
+
+  .phone {
+    width: 320px;
+    background: #000;
+    border: 2px solid #333;
+    border-radius: 32px;
+    padding: 48px 12px 40px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 6px;
+    background: #111;
+    border-radius: 3px;
+  }
+  .phone-label {
+    text-align: center;
+    font-size: 11px;
+    color: #006666;
+    margin-top: 12px;
+    font-family: 'Galmuri11', monospace;
+  }
+
+  .screen {
+    background: #000;
+    min-height: 520px;
+    padding: 8px 4px;
+    overflow: hidden;
+  }
+
+  /* Colors */
+  .cyan { color: #00CCCC; }
+  .bright { color: #00FFFF; }
+  .magenta { color: #FF00FF; }
+  .yellow { color: #FFFF33; }
+  .red { color: #FF3333; }
+  .green { color: #00FF00; }
+  .dim { color: #006666; }
+  .darkblue-bg { background: #000080; }
+  .black { color: #000; }
+
+  .pixel14 { font-family: 'Galmuri14', 'Galmuri11', monospace; font-size: 14px; }
+  .pixel11 { font-family: 'Galmuri11', monospace; font-size: 11px; }
+  .pixel7  { font-family: 'Galmuri7', 'Galmuri11', monospace; font-size: 9px; }
+  .system  { font-family: -apple-system, 'Helvetica Neue', sans-serif; }
+
+  .line { line-height: 1.8; white-space: pre; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 0 8px; }
+  .center { text-align: center; }
+  .pad { padding: 4px 8px; }
+
+  /* Calendar grid */
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+    padding: 2px 4px;
+  }
+  .cal-cell {
+    text-align: center;
+    padding: 6px 0;
+    font-family: 'Galmuri11', monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    min-height: 42px;
+  }
+  .cal-cell.today {
+    color: #00FFFF;
+    font-weight: bold;
+  }
+  .cal-cell.selected {
+    background: #000080;
+    color: #FFFF33;
+  }
+  .cal-cell.sunday { color: #FF3333; }
+  .cal-cell.saturday { color: #00FFFF; }
+  .cal-cell .dot { color: #00FF00; font-size: 7px; }
+
+  /* Event list */
+  .event-row {
+    padding: 6px 8px;
+    border-bottom: 1px solid #003333;
+  }
+  .event-num { color: #006666; font-family: 'Galmuri11', monospace; font-size: 10px; }
+  .event-cat { color: #FF00FF; font-family: 'Galmuri11', monospace; font-size: 10px; }
+  .event-time { color: #00CCCC; font-family: 'Galmuri11', monospace; font-size: 10px; }
+  .event-title { color: #00CCCC; font-family: -apple-system, sans-serif; font-size: 13px; margin-left: 24px; margin-top: 2px; }
+
+  /* Settings */
+  .setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 8px;
+    border-bottom: 1px solid #003333;
+  }
+  .toggle {
+    width: 36px; height: 18px;
+    background: #006666;
+    border-radius: 9px;
+    position: relative;
+  }
+  .toggle.on { background: #00CCCC; }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    background: #000;
+    border-radius: 50%;
+    top: 2px; left: 2px;
+  }
+  .toggle.on::after { left: 20px; }
+
+  /* Boot cursor blink */
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .blink { animation: blink 0.6s infinite; }
+
+  /* Widget */
+  .widget {
+    width: 155px;
+    height: 155px;
+    background: #000;
+    border-radius: 20px;
+    padding: 12px;
+    font-family: 'Galmuri11', monospace;
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 48px;
+  }
+  .widget-label {
+    text-align: center;
+    font-size: 11px;
+    color: #006666;
+    margin-top: 8px;
+    font-family: 'Galmuri11', monospace;
+  }
+  .widget-wrap { display: flex; flex-direction: column; align-items: center; }
+</style>
+</head>
+<body>
+
+<h1>╔══ 56K 캘린더 ══╗</h1>
+<div class="subtitle">PC통신 감성 캘린더 — UI 목업</div>
+
+<!-- ===== BOOT SEQUENCE ===== -->
+<div>
+<div class="phone">
+  <div class="screen" style="display:flex; flex-direction:column; justify-content:flex-start; padding-top: 40px;">
+    <div class="line pixel14 bright center" style="margin-bottom: 16px;">
+      ╔══════════════════════╗<br>
+      ║   KAL.COM  v1.0     ║<br>
+      ╚══════════════════════╝
+    </div>
+    <div class="line pixel11 cyan pad">COM1: 56000 baud</div>
+    <div class="line pixel11 cyan pad">ATDT...</div>
+    <div class="line pixel11 cyan pad">CONNECT 33600/V42BIS</div>
+    <div class="line pixel11 cyan pad">KORNET 접속 중...</div>
+    <div class="line pixel11 magenta pad">[연결 성공]</div>
+    <div class="line pixel11 pad" style="height:12px;"></div>
+    <div class="line pixel14 green pad center">님하 어서오삼</div>
+    <div style="flex:1;"></div>
+    <div class="line pixel7 dim center" style="padding-bottom: 8px;">탭하면 건너뛰기</div>
+  </div>
+</div>
+<div class="phone-label">부팅 시퀀스</div>
+</div>
+
+<!-- ===== MONTH VIEW ===== -->
+<div>
+<div class="phone">
+  <div class="screen">
+    <!-- Box top -->
+    <div class="line pixel11 dim center">╔══════════════════════════════╗</div>
+
+    <!-- Header -->
+    <div class="row" style="padding: 6px 8px;">
+      <span class="pixel14 cyan">◀</span>
+      <span class="pixel14 bright">2026 / 05</span>
+      <span class="pixel14 cyan">▶</span>
+    </div>
+    <div class="row" style="padding: 0 8px 4px;">
+      <span></span>
+      <span class="pixel11 green">[오늘]</span>
+    </div>
+
+    <!-- Box mid -->
+    <div class="line pixel11 dim center">╠══════════════════════════════╣</div>
+
+    <!-- Weekday header -->
+    <div class="cal-grid" style="padding-top:4px; padding-bottom:2px;">
+      <div class="cal-cell sunday" style="min-height:auto; padding:2px 0;">일</div>
+      <div class="cal-cell cyan" style="min-height:auto; padding:2px 0;">월</div>
+      <div class="cal-cell cyan" style="min-height:auto; padding:2px 0;">화</div>
+      <div class="cal-cell cyan" style="min-height:auto; padding:2px 0;">수</div>
+      <div class="cal-cell cyan" style="min-height:auto; padding:2px 0;">목</div>
+      <div class="cal-cell cyan" style="min-height:auto; padding:2px 0;">금</div>
+      <div class="cal-cell saturday" style="min-height:auto; padding:2px 0;">토</div>
+    </div>
+
+    <!-- Calendar grid -->
+    <div class="cal-grid">
+      <!-- Row 1 -->
+      <div class="cal-cell dim"></div>
+      <div class="cal-cell dim"></div>
+      <div class="cal-cell dim"></div>
+      <div class="cal-cell dim"></div>
+      <div class="cal-cell cyan">1</div>
+      <div class="cal-cell cyan">2</div>
+      <div class="cal-cell saturday">3</div>
+      <!-- Row 2 -->
+      <div class="cal-cell sunday">4</div>
+      <div class="cal-cell cyan">5<br><span class="dot">●</span></div>
+      <div class="cal-cell cyan">6</div>
+      <div class="cal-cell cyan">7</div>
+      <div class="cal-cell cyan">8<br><span class="dot">● ●</span></div>
+      <div class="cal-cell cyan">9</div>
+      <div class="cal-cell saturday">10</div>
+      <!-- Row 3 -->
+      <div class="cal-cell sunday">11</div>
+      <div class="cal-cell cyan">12</div>
+      <div class="cal-cell cyan">13</div>
+      <div class="cal-cell cyan">14</div>
+      <div class="cal-cell cyan">15<br><span class="dot">●</span></div>
+      <div class="cal-cell cyan">16</div>
+      <div class="cal-cell saturday">17</div>
+      <!-- Row 4 -->
+      <div class="cal-cell sunday">18</div>
+      <div class="cal-cell cyan">19</div>
+      <div class="cal-cell cyan">20<br><span class="dot">●</span></div>
+      <div class="cal-cell cyan">21</div>
+      <div class="cal-cell cyan">22</div>
+      <div class="cal-cell cyan">23</div>
+      <div class="cal-cell today selected" style="background:#000080;">▶24◀<br><span class="dot">● ●</span></div>
+      <!-- Row 5 -->
+      <div class="cal-cell sunday">25</div>
+      <div class="cal-cell cyan">26</div>
+      <div class="cal-cell cyan">27</div>
+      <div class="cal-cell cyan">28<br><span class="dot">●</span></div>
+      <div class="cal-cell cyan">29</div>
+      <div class="cal-cell cyan">30</div>
+      <div class="cal-cell saturday">31</div>
+    </div>
+
+    <!-- Box bottom -->
+    <div class="line pixel11 dim center">╚══════════════════════════════╝</div>
+
+    <!-- Status bar -->
+    <div style="border-top: 1px solid #003333; margin-top: 8px; padding: 6px 8px;">
+      <div class="row">
+        <span class="pixel11 green">● KORNET 접속 중...</span>
+        <span class="pixel11 magenta">[환경 설정]</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">월 뷰</div>
+</div>
+
+<!-- ===== DAY VIEW ===== -->
+<div>
+<div class="phone">
+  <div class="screen">
+    <div class="line pixel11 dim center">╔══════════════════════════════╗</div>
+    <div class="row" style="padding:8px;">
+      <span class="pixel11 cyan">[←] 뒤로</span>
+      <span class="pixel14 bright">2026-05-24 (토)</span>
+      <span style="width:50px;"></span>
+    </div>
+    <div class="line pixel11 dim center">╠══════════════════════════════╣</div>
+
+    <!-- Events -->
+    <div class="event-row">
+      <div>
+        <span class="event-num">[0001]</span>
+        <span class="event-cat">[업무]</span>
+        <span class="event-time" style="float:right;">14:00</span>
+      </div>
+      <div class="event-title system">주간회의</div>
+      <div style="margin-left:24px; margin-top:2px;">
+        <span class="pixel7 dim">회의실 A</span>
+      </div>
+    </div>
+
+    <div class="event-row">
+      <div>
+        <span class="event-num">[0002]</span>
+        <span class="event-cat">[개인]</span>
+        <span class="event-time" style="float:right;">18:00</span>
+      </div>
+      <div class="event-title system">저녁약속</div>
+    </div>
+
+    <div class="event-row">
+      <div>
+        <span class="event-num">[0003]</span>
+        <span class="event-cat">[개인]</span>
+        <span class="event-time" style="float:right;">종일</span>
+      </div>
+      <div class="event-title system">엄마 생신</div>
+    </div>
+
+    <div style="flex:1; min-height: 160px;"></div>
+
+    <div style="border-top: 1px solid #003333; padding: 12px 8px; text-align: center;">
+      <span class="pixel14 magenta">[F] 새 글쓰기</span>
+    </div>
+    <div class="line pixel11 dim center">╚══════════════════════════════╝</div>
+  </div>
+</div>
+<div class="phone-label">일 상세 뷰</div>
+</div>
+
+<!-- ===== EVENT EDIT ===== -->
+<div>
+<div class="phone">
+  <div class="screen">
+    <div class="line pixel11 dim center">╔══ 새 글쓰기 ═════════════════╗</div>
+    <div class="row" style="padding:8px;">
+      <span class="pixel11 cyan">[ESC] 취소</span>
+      <span class="pixel14 bright">새 글쓰기</span>
+      <span class="pixel11 green">[S] 등록</span>
+    </div>
+    <div class="line pixel11 dim center">╠══════════════════════════════╣</div>
+
+    <div style="padding: 16px 12px;">
+      <div style="margin-bottom: 16px;">
+        <div class="pixel11 cyan" style="margin-bottom:4px;">제목 >> </div>
+        <div class="system" style="color:#00CCCC; font-size:14px; border-bottom: 1px solid #006666; padding: 6px 0;">
+          팀 점심 회식
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div class="pixel11 cyan" style="margin-bottom:4px;">날짜 >> </div>
+        <div class="system" style="color:#00CCCC; font-size:14px; padding: 6px 0;">
+          2026-05-24
+        </div>
+        <div style="border-bottom: 1px solid #003333;"></div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div class="pixel11 cyan" style="margin-bottom:4px;">시간 >> </div>
+        <div class="system" style="color:#00CCCC; font-size:14px; padding: 6px 0;">
+          12:00 ~ 13:30
+        </div>
+        <div style="border-bottom: 1px solid #003333;"></div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div class="pixel11 cyan" style="margin-bottom:4px;">장소 >> </div>
+        <div class="system" style="color:#006666; font-size:14px; border-bottom: 1px solid #006666; padding: 6px 0;">
+          장소를 입력하세요
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div class="pixel11 cyan" style="margin-bottom:4px;">내용 >> </div>
+        <div class="system" style="color:#006666; font-size:14px; border-bottom: 1px solid #006666; padding: 6px 0; min-height: 60px;">
+          메모를 입력하세요
+        </div>
+      </div>
+    </div>
+
+    <div class="line pixel11 dim center">╚══════════════════════════════╝</div>
+  </div>
+</div>
+<div class="phone-label">이벤트 생성 뷰</div>
+</div>
+
+<!-- ===== SETTINGS ===== -->
+<div>
+<div class="phone">
+  <div class="screen">
+    <div class="line pixel11 dim center">╔══════════════════════════════╗</div>
+    <div class="row" style="padding:8px;">
+      <span class="pixel11 cyan">[←] 뒤로</span>
+      <span class="pixel14 bright">[ 환경 설정 ]</span>
+      <span style="width:50px;"></span>
+    </div>
+    <div class="line pixel11 dim center">╠══════════════════════════════╣</div>
+
+    <div style="padding: 8px 12px;">
+      <div class="pixel11 cyan" style="padding: 10px 0;">█ 시스템</div>
+
+      <div class="setting-row">
+        <div>
+          <div class="system" style="color:#00CCCC; font-size:14px;">사운드</div>
+          <div class="pixel7 green" style="margin-top:2px;">OFF</div>
+        </div>
+        <div class="toggle"></div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="system" style="color:#00CCCC; font-size:14px;">접속 애니메이션</div>
+        </div>
+        <div class="toggle on"></div>
+      </div>
+
+      <div style="border-bottom: 1px solid #003333; margin: 8px 0;"></div>
+      <div class="pixel11 cyan" style="padding: 10px 0;">█ PC통신팩</div>
+
+      <div class="setting-row">
+        <div>
+          <div class="system" style="color:#00CCCC; font-size:14px;">PC통신팩</div>
+          <div class="pixel7 green" style="margin-top:2px;">모든 기능 잠금 해제</div>
+        </div>
+        <span class="pixel11 magenta">구매하기 [₩4,900]</span>
+      </div>
+
+      <div class="setting-row">
+        <span class="system" style="color:#00CCCC; font-size:14px;">구매 복원</span>
+        <span class="pixel11 magenta">복원</span>
+      </div>
+
+      <div style="border-bottom: 1px solid #003333; margin: 8px 0;"></div>
+      <div class="pixel11 cyan" style="padding: 10px 0;">█ 정보</div>
+
+      <div class="setting-row">
+        <span class="system" style="color:#00CCCC; font-size:14px;">버전</span>
+        <span class="pixel11 green">v1.0</span>
+      </div>
+    </div>
+
+    <div class="line pixel11 dim center" style="margin-top:auto;">╚══════════════════════════════╝</div>
+  </div>
+</div>
+<div class="phone-label">설정</div>
+</div>
+
+<!-- ===== PERMISSION DENIED ===== -->
+<div>
+<div class="phone">
+  <div class="screen" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+    <div class="line pixel14 bright center" style="margin-bottom: 24px;">
+      ╔══════════════════════╗<br>
+      ║   KAL.COM  v1.0     ║<br>
+      ╚══════════════════════╝
+    </div>
+    <div class="line pixel11 dim center">──────────────────────────</div>
+    <div class="system center" style="color:#00CCCC; font-size:14px; padding: 16px 20px; line-height: 1.6;">
+      캘린더 접근 권한이 없삼.<br>설정에서 허용해주세요.
+    </div>
+    <div class="line pixel11 dim center">──────────────────────────</div>
+    <div style="margin-top: 16px;">
+      <span class="pixel14 magenta">[설정으로 이동]</span>
+    </div>
+  </div>
+</div>
+<div class="phone-label">권한 거절 화면</div>
+</div>
+
+<!-- ===== DELETE CONFIRM ===== -->
+<div>
+<div class="phone">
+  <div class="screen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;">
+    <!-- Dimmed background hint -->
+    <div style="position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7);"></div>
+    <!-- Modal -->
+    <div style="position:relative; z-index:1; background:#000; border: 2px solid #006666; padding: 0; width: 240px;">
+      <div class="line pixel11 dim center">╔══════════════════════════╗</div>
+      <div style="padding: 20px 16px; text-align:center;">
+        <div class="system" style="color:#FFFF33; font-size:14px; margin-bottom: 20px;">
+          님하 정말 삭제하실?
+        </div>
+        <div style="display:flex; justify-content:center; gap: 24px;">
+          <span class="pixel14 red">[ㄱㄱ]</span>
+          <span class="pixel14 cyan">[ㄴㄴ]</span>
+        </div>
+      </div>
+      <div class="line pixel11 dim center">╚══════════════════════════╝</div>
+    </div>
+  </div>
+</div>
+<div class="phone-label">삭제 확인 다이얼로그</div>
+</div>
+
+<!-- ===== WIDGET ===== -->
+<div class="widget-wrap">
+  <div class="widget">
+    <div class="pixel7 dim" style="font-size:9px;">┌─ 2026/05 ─────┐</div>
+    <div style="display:flex; align-items:baseline; gap:0;">
+      <span class="pixel7 dim" style="font-size:9px;">│ </span>
+      <span class="pixel11 bright" style="font-size:20px;">24</span>
+      <span class="pixel11 bright" style="font-size:11px;"> (토)</span>
+      <span style="flex:1;"></span>
+      <span class="pixel7 dim" style="font-size:9px;">│</span>
+    </div>
+    <div class="pixel7 dim" style="font-size:9px;">│ ─────────    │</div>
+    <div style="display:flex;">
+      <span class="pixel7 dim" style="font-size:9px;">│ </span>
+      <span class="pixel11 cyan" style="font-size:10px;">14:00 회의</span>
+      <span style="flex:1;"></span>
+      <span class="pixel7 dim" style="font-size:9px;">│</span>
+    </div>
+    <div style="display:flex;">
+      <span class="pixel7 dim" style="font-size:9px;">│ </span>
+      <span class="pixel11 cyan" style="font-size:10px;">18:00 약속</span>
+      <span style="flex:1;"></span>
+      <span class="pixel7 dim" style="font-size:9px;">│</span>
+    </div>
+    <div class="pixel7 dim" style="font-size:9px;">└───────────────┘</div>
+  </div>
+  <div class="widget-label">위젯 (Small)</div>
+</div>
+
+</body>
+</html>
