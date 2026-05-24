@@ -19,6 +19,10 @@ final class MonthStore {
         let now = Date.now
         self.displayedYear = calendar.component(.year, from: now)
         self.displayedMonth = calendar.component(.month, from: now)
+
+        calendarStore.onChange = { [weak self] in
+            self?.loadEvents()
+        }
     }
 
     var today: Date { Date.now }

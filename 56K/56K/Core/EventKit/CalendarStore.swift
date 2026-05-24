@@ -1,5 +1,6 @@
 import EventKit
 import Observation
+import Foundation
 
 @Observable
 final class CalendarStore {
@@ -10,12 +11,25 @@ final class CalendarStore {
     var selectedDate: Date = .now
     var currentMonthEvents: [EKEvent] = []
 
+    var onChange: (() -> Void)?
+
     var isAuthorized: Bool {
         authorizationStatus == .fullAccess
     }
 
     init() {
         authorizationStatus = EKEventStore.authorizationStatus(for: .event)
+        NotificationCenter.default.addObserver(
+            forName: .EKEventStoreChanged,
+            object: store,
+            queue: .main
+        ) { [weak self] _ in
+            self?.onChange?()
+        }
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     func requestAccess() async -> Bool {

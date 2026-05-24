@@ -3,20 +3,19 @@ import EventKit
 
 struct MonthView: View {
     @Bindable var store: MonthStore
+    @State private var dragOffset: CGFloat = 0
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
     private let boxWidth = 30
 
     var body: some View {
         VStack(spacing: 0) {
-            // Top border
             Text(ASCII.boxTop(boxWidth))
                 .font(.pixel11)
                 .foregroundStyle(Color.kalDim)
 
             monthHeader
 
-            // Mid divider
             Text(ASCII.boxMid(boxWidth))
                 .font(.pixel11)
                 .foregroundStyle(Color.kalDim)
@@ -25,12 +24,31 @@ struct MonthView: View {
 
             calendarGrid
 
-            // Bottom border
             Text(ASCII.boxBottom(boxWidth))
                 .font(.pixel11)
                 .foregroundStyle(Color.kalDim)
         }
         .background(Color.kalBlack)
+        .contentShape(Rectangle())
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                .onChanged { value in
+                    dragOffset = value.translation.width
+                }
+                .onEnded { value in
+                    let threshold: CGFloat = 50
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        if value.translation.width < -threshold {
+                            store.goToNextMonth()
+                            SoundManager.shared.play(.beep)
+                        } else if value.translation.width > threshold {
+                            store.goToPreviousMonth()
+                            SoundManager.shared.play(.beep)
+                        }
+                        dragOffset = 0
+                    }
+                }
+        )
         .onAppear {
             store.loadEvents()
         }

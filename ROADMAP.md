@@ -37,7 +37,7 @@
 - [x] 권한 요청 플로우 (iOS 17의 `requestFullAccessToEvents`)
 - [x] 권한 거절 시 폴백 화면 (PC통신풍, 설정 딥링크)
 - [x] 월 범위로 이벤트 조회 함수
-- [ ] EventKit 변경 알림 구독 (`.EKEventStoreChanged`)
+- [x] EventKit 변경 알림 구독 (`.EKEventStoreChanged`)
 
 #### Day 5-7: 월 뷰
 
@@ -46,7 +46,7 @@
 - [x] 요일 헤더, 날짜 셀, 이전/다음 달 네비
 - [x] 오늘 날짜 `▶DD◀` 강조 + 점멸
 - [x] 일정 있는 날 점(·) 또는 막대
-- [ ] 월 스와이프 (좌우 제스처)
+- [x] 월 스와이프 (좌우 제스처)
 - [ ] 60fps 유지 확인
 
 ### W1 Definition of Done
