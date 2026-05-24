@@ -36,6 +36,14 @@ enum Copy {
         static let noEventsToday = "오늘은 일정 없음. 즐기삼."
     }
 
+    enum Notification {
+        static func before(minutes: Int) -> String {
+            "[공지] \(minutes)분 후 일정이 있삼"
+        }
+        static let start = "[알림] 지금 시작이용 ㄱㄱ"
+        static let end = "[공지] 일정 종료. 수고하셨음다"
+    }
+
     enum Boot {
         static let banner = "KAL.COM v1.0"
         static let port = "COM1: 56000 baud"
