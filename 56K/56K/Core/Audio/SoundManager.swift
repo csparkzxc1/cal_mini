@@ -14,22 +14,20 @@ final class SoundManager {
 
     private init() {
         if UserDefaults.standard.object(forKey: "soundEnabled") == nil {
-            UserDefaults.standard.set(true, forKey: "soundEnabled")
+            UserDefaults.standard.set(false, forKey: "soundEnabled")
         }
     }
 
     enum Sound: String {
-        case modem = "modem"
-        case beep = "beep"
-        case keyClick = "key_click"
-        case error = "error_buzz"
-        case success = "success"
+        case modem = "modem_handshake"
+        case beep = "beep_short"
+        case error = "beep_error"
+        case keyPress = "key_press"
     }
 
     func play(_ sound: Sound) {
         guard isSoundEnabled else { return }
-        guard let url = Bundle.main.url(forResource: sound.rawValue, withExtension: "caf")
-                ?? Bundle.main.url(forResource: sound.rawValue, withExtension: "m4a") else {
+        guard let url = Bundle.main.url(forResource: sound.rawValue, withExtension: "m4a") else {
             return
         }
         do {

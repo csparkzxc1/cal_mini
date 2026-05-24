@@ -1,94 +1,50 @@
 import Foundation
 
 enum ASCII {
-    // Double-line box components
-    static let boxTopLeft = "╔"
-    static let boxTopRight = "╗"
-    static let boxBottomLeft = "╚"
-    static let boxBottomRight = "╝"
-    static let boxHorizontal = "═"
-    static let boxVertical = "║"
-    static let boxLeftT = "╠"
-    static let boxRightT = "╣"
-    static let boxCross = "╬"
+    static let boxTL = "╔"
+    static let boxTR = "╗"
+    static let boxBL = "╚"
+    static let boxBR = "╝"
+    static let boxH  = "═"
+    static let boxV  = "║"
+    static let boxML = "╠"
+    static let boxMR = "╣"
+    static let boxMT = "╦"
+    static let boxMB = "╩"
+    static let boxX  = "╬"
 
-    // Single-line box components
-    static let thinTopLeft = "┌"
-    static let thinTopRight = "┐"
-    static let thinBottomLeft = "└"
-    static let thinBottomRight = "┘"
-    static let thinHorizontal = "─"
-    static let thinVertical = "│"
-    static let thinLeftT = "├"
-    static let thinRightT = "┤"
+    static let lineTL = "┌"
+    static let lineTR = "┐"
+    static let lineBL = "└"
+    static let lineBR = "┘"
+    static let lineH  = "─"
+    static let lineV  = "│"
 
-    // Dividers
-    static let thickDivider = "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    static let doubleDivider = "══════════════════════════════"
-    static let thinDivider = "──────────────────────────────"
-
-    // Navigation
-    static let arrowLeft = "◀"
-    static let arrowRight = "▶"
-    static let arrowUp = "▲"
-    static let arrowDown = "▼"
-
-    // Decorative
-    static let star = "★"
+    static let arrowL = "◀"
+    static let arrowR = "▶"
     static let bullet = "●"
+    static let star   = "★"
     static let diamond = "◆"
-    static let square = "■"
-    static let emptySquare = "□"
-    static let pointer = "▶"
     static let cursor = "█"
-    static let cursorBlink = "▌"
 
-    // List prefixes
-    static let listItem = ">"
-    static let selectedItem = "▶"
-
-    // Status
-    static let online = "●"
-    static let offline = "○"
-
-    // Build a horizontal box line of given width
-    static func horizontalLine(_ char: String = boxHorizontal, width: Int) -> String {
-        String(repeating: char, count: width)
+    static func hLine(_ width: Int) -> String {
+        String(repeating: boxH, count: width)
     }
 
-    // Build a box top: ╔════════╗
-    static func boxTop(width: Int) -> String {
-        boxTopLeft + horizontalLine(width: width) + boxTopRight
+    static func boxTop(_ width: Int) -> String {
+        boxTL + hLine(width) + boxTR
     }
 
-    // Build a box bottom: ╚════════╝
-    static func boxBottom(width: Int) -> String {
-        boxBottomLeft + horizontalLine(width: width) + boxBottomRight
+    static func boxBottom(_ width: Int) -> String {
+        boxBL + hLine(width) + boxBR
     }
 
-    // Build a box middle separator: ╠════════╣
-    static func boxMiddle(width: Int) -> String {
-        boxLeftT + horizontalLine(width: width) + boxRightT
+    static func boxMid(_ width: Int) -> String {
+        boxML + hLine(width) + boxMR
     }
 
-    // Wrap text in a box line: ║ text   ║
     static func boxLine(_ text: String, width: Int) -> String {
         let padding = max(0, width - text.count)
-        return boxVertical + " " + text + String(repeating: " ", count: padding) + " " + boxVertical
-    }
-
-    // Boot sequence ASCII title
-    static let bootLogo = """
-    ╔══════════════════════════╗
-    ║    5 6 K  캘 린 더      ║
-    ║       v 1 . 0           ║
-    ╚══════════════════════════╝
-    """
-
-    // Progress bar
-    static func progressBar(filled: Int, total: Int) -> String {
-        let filledStr = String(repeating: square, count: filled)
-        let emptyStr = String(repeating: emptySquare, count: total - filled)
-        return "[\(filledStr)\(emptyStr)]"
+        return boxV + " " + text + String(repeating: " ", count: padding) + " " + boxV
     }
 }

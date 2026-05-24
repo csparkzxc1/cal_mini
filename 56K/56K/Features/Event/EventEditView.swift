@@ -24,53 +24,53 @@ struct EventEditView: View {
 
                 ScrollView {
                     VStack(spacing: 16) {
-                        fieldSection(label: Copy.Event.title) {
-                            TextField(Copy.Event.titlePlaceholder, text: $title)
-                                .font(KalFont.bodyRegular)
-                                .foregroundStyle(Color.kalWhite)
-                                .tint(Color.kalCyan)
+                        fieldSection(label: Copy.Field.title) {
+                            TextField("", text: $title)
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.kalCyan)
+                                .tint(Color.kalCyanBright)
                         }
 
-                        fieldSection(label: Copy.Event.location) {
-                            TextField(Copy.Event.locationPlaceholder, text: $location)
-                                .font(KalFont.bodyRegular)
-                                .foregroundStyle(Color.kalWhite)
-                                .tint(Color.kalCyan)
+                        fieldSection(label: Copy.Field.location) {
+                            TextField("", text: $location)
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.kalCyan)
+                                .tint(Color.kalCyanBright)
                         }
 
-                        fieldSection(label: Copy.Event.allDay) {
+                        fieldSection(label: Copy.Calendar.allDay) {
                             Toggle(isOn: $isAllDay) {
                                 EmptyView()
                             }
-                            .tint(Color.kalCyan)
+                            .tint(Color.kalCyanBright)
                         }
 
-                        fieldSection(label: Copy.Event.startDate) {
+                        fieldSection(label: Copy.Field.date) {
                             DatePicker("", selection: $startDate, displayedComponents: isAllDay ? .date : [.date, .hourAndMinute])
                                 .labelsHidden()
-                                .tint(Color.kalCyan)
+                                .tint(Color.kalCyanBright)
                                 .colorScheme(.dark)
                         }
 
-                        fieldSection(label: Copy.Event.endDate) {
+                        fieldSection(label: Copy.Field.time) {
                             DatePicker("", selection: $endDate, in: startDate..., displayedComponents: isAllDay ? .date : [.date, .hourAndMinute])
                                 .labelsHidden()
-                                .tint(Color.kalCyan)
+                                .tint(Color.kalCyanBright)
                                 .colorScheme(.dark)
                         }
 
-                        fieldSection(label: Copy.Event.notes) {
-                            TextField(Copy.Event.notesPlaceholder, text: $notes, axis: .vertical)
-                                .font(KalFont.bodyRegular)
-                                .foregroundStyle(Color.kalWhite)
+                        fieldSection(label: Copy.Field.memo) {
+                            TextField("", text: $notes, axis: .vertical)
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.kalCyan)
                                 .lineLimit(3...6)
-                                .tint(Color.kalCyan)
+                                .tint(Color.kalCyanBright)
                         }
                     }
                     .padding(16)
                 }
             }
-            .background(Color.kalBackground)
+            .background(Color.kalBlack)
             .navigationBarHidden(true)
             .onAppear(perform: populateFields)
         }
@@ -78,44 +78,44 @@ struct EventEditView: View {
 
     private var editHeader: some View {
         VStack(spacing: 0) {
-            Text(ASCII.doubleDivider)
-                .font(KalFont.pixel(10))
-                .foregroundStyle(Color.kalBorder)
+            Text(ASCII.boxTop(30))
+                .font(.pixel11)
+                .foregroundStyle(Color.kalDim)
             HStack {
                 Button(action: { dismiss() }) {
-                    Text("[\(Copy.Event.cancel)]")
-                        .font(KalFont.pixel(12))
-                        .foregroundStyle(Color.kalCyan)
+                    Text(Copy.Action.cancel)
+                        .font(.pixel11)
+                        .foregroundStyle(Color.kalMagenta)
                 }
                 Spacer()
-                Text(isEditing ? Copy.Event.editEvent : Copy.Event.newEvent)
-                    .font(KalFont.headerSubtitle)
-                    .foregroundStyle(Color.kalCyan)
+                Text(isEditing ? Copy.Action.edit : Copy.Action.newEvent)
+                    .font(.pixel14)
+                    .foregroundStyle(Color.kalCyanBright)
                 Spacer()
                 Button(action: save) {
-                    Text("[\(Copy.Event.save)]")
-                        .font(KalFont.pixel(12))
-                        .foregroundStyle(title.isEmpty ? Color.kalBorder : Color.kalGreen)
+                    Text(Copy.Action.save)
+                        .font(.pixel11)
+                        .foregroundStyle(title.isEmpty ? Color.kalDim : Color.kalGreen)
                 }
                 .disabled(title.isEmpty)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            Text(ASCII.doubleDivider)
-                .font(KalFont.pixel(10))
-                .foregroundStyle(Color.kalBorder)
+            Text(ASCII.boxBottom(30))
+                .font(.pixel11)
+                .foregroundStyle(Color.kalDim)
         }
     }
 
     private func fieldSection<Content: View>(label: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(label)
-                .font(KalFont.pixel(12))
-                .foregroundStyle(Color.kalCyan)
+                .font(.pixel11)
+                .foregroundStyle(Color.kalCyanBright)
             content()
-            Text(ASCII.thinDivider)
-                .font(KalFont.pixel(8))
-                .foregroundStyle(Color.kalBorder.opacity(0.5))
+            Text(String(repeating: ASCII.lineH, count: 30))
+                .font(.pixel7)
+                .foregroundStyle(Color.kalDim.opacity(0.5))
         }
     }
 
@@ -136,7 +136,7 @@ struct EventEditView: View {
 
     private func save() {
         guard !title.isEmpty else { return }
-        SoundManager.shared.play(.success)
+        SoundManager.shared.play(.beep)
 
         Task {
             if let event = existingEvent {

@@ -31,10 +31,10 @@ struct EventDetailView: View {
                     titleSection
                     timeSection
                     if let location = event.location, !location.isEmpty {
-                        detailRow(label: Copy.Event.location, value: location)
+                        detailRow(label: Copy.Field.location, value: location)
                     }
                     if let notes = event.notes, !notes.isEmpty {
-                        detailRow(label: Copy.Event.notes, value: notes)
+                        detailRow(label: Copy.Field.memo, value: notes)
                     }
                 }
                 .padding(16)
@@ -43,38 +43,38 @@ struct EventDetailView: View {
             Spacer()
             actionBar
         }
-        .background(Color.kalBackground)
+        .background(Color.kalBlack)
         .navigationBarHidden(true)
         .sheet(isPresented: $showingEdit) {
             EventEditView(calendarStore: calendarStore, existingEvent: event)
         }
-        .alert(Copy.Event.deleteConfirm, isPresented: $showingDeleteConfirm) {
-            Button(Copy.Event.deleteEvent, role: .destructive) {
+        .alert(Copy.Confirm.deleteEvent, isPresented: $showingDeleteConfirm) {
+            Button(Copy.Action.delete, role: .destructive) {
                 try? calendarStore.deleteEvent(event)
                 dismiss()
             }
-            Button(Copy.Event.cancel, role: .cancel) {}
+            Button(Copy.Action.cancel, role: .cancel) {}
         }
     }
 
     private var header: some View {
         VStack(spacing: 0) {
-            Text(ASCII.doubleDivider)
-                .font(KalFont.pixel(10))
-                .foregroundStyle(Color.kalBorder)
+            Text(ASCII.hLine(30))
+                .font(.pixel11)
+                .foregroundStyle(Color.kalDim)
             HStack {
                 Button(action: { dismiss() }) {
-                    Text("[\(Copy.Common.back)]")
-                        .font(KalFont.pixel(12))
-                        .foregroundStyle(Color.kalCyan)
+                    Text(Copy.Action.back)
+                        .font(.pixel11)
+                        .foregroundStyle(Color.kalMagenta)
                 }
                 Spacer()
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            Text(ASCII.doubleDivider)
-                .font(KalFont.pixel(10))
-                .foregroundStyle(Color.kalBorder)
+            Text(ASCII.hLine(30))
+                .font(.pixel11)
+                .foregroundStyle(Color.kalDim)
         }
     }
 
@@ -86,15 +86,15 @@ struct EventDetailView: View {
                     .frame(width: 4, height: 24)
             }
             Text(event.title ?? "")
-                .font(KalFont.bodyLarge)
-                .foregroundStyle(Color.kalWhite)
+                .font(.pixel14)
+                .foregroundStyle(Color.kalCyan)
         }
     }
 
     private var timeSection: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(dateText)
-                .font(KalFont.bodyRegular)
+                .font(.system(size: 14))
                 .foregroundStyle(Color.kalGreen)
         }
     }
@@ -102,29 +102,29 @@ struct EventDetailView: View {
     private func detailRow(label: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
-                .font(KalFont.caption)
-                .foregroundStyle(Color.kalCyan)
+                .font(.pixel11)
+                .foregroundStyle(Color.kalCyanBright)
             Text(value)
-                .font(KalFont.bodyRegular)
-                .foregroundStyle(Color.kalWhite)
+                .font(.system(size: 14))
+                .foregroundStyle(Color.kalCyan)
         }
     }
 
     private var actionBar: some View {
         VStack(spacing: 0) {
-            Text(ASCII.thinDivider)
-                .font(KalFont.pixel(10))
-                .foregroundStyle(Color.kalBorder)
+            Text(String(repeating: ASCII.lineH, count: 30))
+                .font(.pixel11)
+                .foregroundStyle(Color.kalDim)
             HStack {
                 Button(action: { showingEdit = true }) {
-                    Text("[\(Copy.Event.editEvent)]")
-                        .font(KalFont.pixel(14))
-                        .foregroundStyle(Color.kalCyan)
+                    Text(Copy.Action.edit)
+                        .font(.pixel14)
+                        .foregroundStyle(Color.kalMagenta)
                 }
                 Spacer()
                 Button(action: { showingDeleteConfirm = true }) {
-                    Text("[\(Copy.Event.deleteEvent)]")
-                        .font(KalFont.pixel(14))
+                    Text(Copy.Action.delete)
+                        .font(.pixel14)
                         .foregroundStyle(Color.kalRed)
                 }
             }
